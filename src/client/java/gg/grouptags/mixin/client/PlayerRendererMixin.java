@@ -24,6 +24,8 @@ import java.util.WeakHashMap;
 abstract class PlayerRendererMixin {
     @Unique private final Map<EntityRenderState, GroupTag> grouptag$tags = new WeakHashMap<>();
     @Unique private boolean grouptag$submitting;
+    @Unique private final java.util.Set<java.util.UUID> grouptag$seen = new java.util.HashSet<>();
+    @Unique private boolean grouptag$reportedSubmit;
 
     @Shadow protected abstract void submitNameTag(EntityRenderState state, PoseStack poses,
         SubmitNodeCollector collector, CameraRenderState camera);
@@ -32,7 +34,13 @@ abstract class PlayerRendererMixin {
     private void grouptag$extract(Entity entity, EntityRenderState state, float tickDelta, CallbackInfo ci) {
         grouptag$tags.remove(state);
         if (entity instanceof AbstractClientPlayer) {
-            GroupTagClient.getTag(entity.getUUID()).ifPresent(tag -> grouptag$tags.put(state, tag));
+            GroupTagClient.getTag(entity.getUUID()).ifPresent(tag -> {
+                grouptag$tags.put(state, tag);
+                if (grouptag$seen.add(entity.getUUID())) {
+                    org.slf4j.LoggerFactory.getLogger("GroupTag").info(
+                        "[GroupTag] Render state matched {} to {}", entity.getUUID(), tag.name());
+                }
+            });
         }
     }
 
@@ -42,6 +50,10 @@ abstract class PlayerRendererMixin {
         if (grouptag$submitting || state.nameTag == null || state.nameTagAttachment == null) return;
         GroupTag tag = grouptag$tags.get(state);
         if (tag == null) return;
+        if (!grouptag$reportedSubmit) {
+            org.slf4j.LoggerFactory.getLogger("GroupTag").info("[GroupTag] Submitting group nametag: {}", tag.name());
+            grouptag$reportedSubmit = true;
+        }
         Component originalName = state.nameTag;
         Vec3 originalAttachment = state.nameTagAttachment;
         grouptag$submitting = true;
