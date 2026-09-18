@@ -21,6 +21,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class TagService {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger("GroupTag");
+    private String lastPlayers = "";
+    private String lastResult = "";
+    private long nextErrorLogAt;
+
+    TagService() { LOG.info("[GroupTag] Diagnostic build 0.1.1 initialized"); }
     private static final String API_URL = "https://api.grouptags.gg/v1/tags/lookup?uuids=";
     private static final long REFRESH_INTERVAL_MS = 5_000L;
     private static final HttpClient HTTP = HttpClient.newBuilder()
@@ -36,7 +42,8 @@ final class TagService {
     }
 
     void tick(Minecraft client) {
-        if (client.level == null || requestInFlight || System.currentTimeMillis() < nextRefreshAt) {
+        if (client.level == null) { tags.clear(); lastPlayers = ""; return; }
+        if (requestInFlight || System.currentTimeMillis() < nextRefreshAt) {
             return;
         }
 
@@ -57,6 +64,14 @@ final class TagService {
             .reduce((left, right) -> left + "," + right)
             .orElse("");
 
+        String players = client.level.players().stream()
+            .map(player -> player.getName().getString() + "=" + player.getUUID())
+            .sorted().collect(java.util.stream.Collectors.joining(", "));
+        if (!players.equals(lastPlayers)) {
+            LOG.info("[GroupTag] Nearby players: {}", players);
+            lastPlayers = players;
+        }
+        var requestLevel = client.level;
         requestInFlight = true;
         nextRefreshAt = System.currentTimeMillis() + REFRESH_INTERVAL_MS;
 
@@ -67,14 +82,31 @@ final class TagService {
             .build();
 
         HTTP.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(HttpResponse::body)
+            .thenApply(response -> {
+                if (response.statusCode() != 200) {
+                    throw new IllegalStateException("Lookup HTTP " + response.statusCode());
+                }
+                return response.body();
+            })
             .thenApply(this::parse)
             .thenAccept(result -> client.execute(() -> {
-                tags.clear();
-                tags.putAll(result);
+                if (client.level == requestLevel) {
+                    tags.clear();
+                    tags.putAll(result);
+                    String summary = result.toString();
+                    if (!summary.equals(lastResult)) {
+                        LOG.info("[GroupTag] Lookup succeeded: {}", summary);
+                        lastResult = summary;
+                    }
+                }
                 requestInFlight = false;
             }))
             .exceptionally(error -> {
+                long now = System.currentTimeMillis();
+                if (now >= nextErrorLogAt) {
+                    LOG.warn("[GroupTag] Lookup failed", error);
+                    nextErrorLogAt = now + 60_000L;
+                }
                 requestInFlight = false;
                 return null;
             });
