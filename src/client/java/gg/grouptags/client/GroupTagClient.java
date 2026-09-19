@@ -20,7 +20,7 @@ public final class GroupTagClient implements ClientModInitializer {
         return TAGS.get(playerUuid);
     }
 
-    public static Optional<ResourceLocation> getLogo(GroupTag tag) {
+    public static Optional<Identifier> getLogo(GroupTag tag) {
         return LOGOS.get(tag);
     }
 }
