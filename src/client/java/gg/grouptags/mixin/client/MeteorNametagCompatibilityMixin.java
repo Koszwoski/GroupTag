@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * When it is active, leave Meteor responsible for the IGN and keep an empty
  * vanilla label as an anchor so PlayerRendererMixin can submit the group line.
  */
-@Mixin(value = EntityRenderer.class, priority = 2000)
+@Mixin(value = EntityRenderer.class, priority = 500)
 abstract class MeteorNametagCompatibilityMixin {
     @Inject(method = "getNameTag", at = @At("HEAD"), cancellable = true)
     private void grouptag$keepAnchorForMeteor(Entity entity, CallbackInfoReturnable<Component> cir) {
