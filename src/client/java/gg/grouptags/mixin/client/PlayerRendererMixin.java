@@ -88,10 +88,12 @@ abstract class PlayerRendererMixin {
             float halfSize = 4.0F;
             poses.pushPose();
             try {
-                poses.translate(state.nameTagAttachment.x, state.nameTagAttachment.y, state.nameTagAttachment.z);
+                // Mirror Minecraft's own name-tag transform exactly.
+                poses.translate(state.nameTagAttachment.x, state.nameTagAttachment.y + 0.5D, state.nameTagAttachment.z);
                 poses.mulPose(camera.orientation);
-                poses.scale(0.0205F, -0.0205F, 0.0205F);
-                poses.translate(iconX, 0.0F, 0.01F);
+                poses.scale(0.025F, -0.025F, 0.025F);
+                // Font glyphs occupy y=0..8; align the 8x8 logo to that same box.
+                poses.translate(iconX, 4.0F, 0.01F);
                 collector.submitCustomGeometry(poses, net.minecraft.client.renderer.rendertype.RenderTypes.text(texture),
                     (pose, vertices) -> {
                         vertices.addVertex(pose, -halfSize, -halfSize, 0.0F).setColor(-1).setUv(0.0F, 0.0F).setLight(0xF000F0);
