@@ -66,7 +66,7 @@ abstract class PlayerRendererMixin {
         grouptag$submitting = true;
         try {
             state.nameTag = Component.literal(tag.name()).withColor(tag.color() & 0xFFFFFF);
-            state.nameTagAttachment = originalAttachment.add(0.0, 0.42, 0.0);
+            state.nameTagAttachment = originalAttachment.add(0.0, 0.95, 0.0);
             poses.pushPose();
             poses.scale(0.82F, 0.82F, 0.82F);
             submitNameTag(state, poses, collector, camera);
