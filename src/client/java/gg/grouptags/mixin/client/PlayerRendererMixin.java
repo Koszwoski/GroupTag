@@ -94,10 +94,10 @@ abstract class PlayerRendererMixin {
                 poses.translate(iconX, 0.0F, 0.01F);
                 collector.submitCustomGeometry(poses, net.minecraft.client.renderer.rendertype.RenderTypes.text(texture),
                     (pose, vertices) -> {
-                        vertices.addVertex(pose, -halfSize, -halfSize, 0.0F).setColor(-1).setUv(0.0F, 0.0F);
-                        vertices.addVertex(pose, -halfSize, halfSize, 0.0F).setColor(-1).setUv(0.0F, 1.0F);
-                        vertices.addVertex(pose, halfSize, halfSize, 0.0F).setColor(-1).setUv(1.0F, 1.0F);
-                        vertices.addVertex(pose, halfSize, -halfSize, 0.0F).setColor(-1).setUv(1.0F, 0.0F);
+                        vertices.addVertex(pose, -halfSize, -halfSize, 0.0F).setColor(-1).setUv(0.0F, 0.0F).setLight(0xF000F0);
+                        vertices.addVertex(pose, -halfSize, halfSize, 0.0F).setColor(-1).setUv(0.0F, 1.0F).setLight(0xF000F0);
+                        vertices.addVertex(pose, halfSize, halfSize, 0.0F).setColor(-1).setUv(1.0F, 1.0F).setLight(0xF000F0);
+                        vertices.addVertex(pose, halfSize, -halfSize, 0.0F).setColor(-1).setUv(1.0F, 0.0F).setLight(0xF000F0);
                     });
             } finally {
                 poses.popPose();
