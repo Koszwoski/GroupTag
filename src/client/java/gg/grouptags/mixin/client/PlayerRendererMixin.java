@@ -71,10 +71,37 @@ abstract class PlayerRendererMixin {
             poses.scale(0.82F, 0.82F, 0.82F);
             submitNameTag(state, poses, collector, camera);
             poses.popPose();
+            grouptag$submitLogo(tag, state, poses, collector, camera);
         } finally {
             state.nameTag = originalName;
             state.nameTagAttachment = originalAttachment;
             grouptag$submitting = false;
         }
+    }
+
+    @Unique
+    private void grouptag$submitLogo(GroupTag tag, AvatarRenderState state, PoseStack poses,
+                                     SubmitNodeCollector collector, CameraRenderState camera) {
+        GroupTagClient.getLogo(tag).ifPresent(texture -> {
+            float textWidth = net.minecraft.client.Minecraft.getInstance().font.width(tag.name());
+            float iconX = tag.logoAfterName() ? textWidth / 2.0F + 6.0F : -textWidth / 2.0F - 6.0F;
+            float halfSize = 4.0F;
+            poses.pushPose();
+            try {
+                poses.translate(state.nameTagAttachment.x, state.nameTagAttachment.y + 0.95D, state.nameTagAttachment.z);
+                poses.mulPose(camera.orientation);
+                poses.scale(0.0205F, -0.0205F, 0.0205F);
+                poses.translate(iconX, 0.0F, 0.01F);
+                collector.submitCustomGeometry(poses, net.minecraft.client.renderer.RenderTypes.text(texture),
+                    (pose, vertices) -> {
+                        vertices.addVertex(pose, -halfSize, -halfSize, 0.0F).setColor(-1).setUv(0.0F, 0.0F);
+                        vertices.addVertex(pose, -halfSize, halfSize, 0.0F).setColor(-1).setUv(0.0F, 1.0F);
+                        vertices.addVertex(pose, halfSize, halfSize, 0.0F).setColor(-1).setUv(1.0F, 1.0F);
+                        vertices.addVertex(pose, halfSize, -halfSize, 0.0F).setColor(-1).setUv(1.0F, 0.0F);
+                    });
+            } finally {
+                poses.popPose();
+            }
+        });
     }
 }
