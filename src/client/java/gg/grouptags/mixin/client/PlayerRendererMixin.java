@@ -88,6 +88,8 @@ abstract class PlayerRendererMixin {
             float halfSize = 4.0F;
             poses.pushPose();
             try {
+                // The group text is submitted from a 0.82-scaled pose, so the logo must use it too.
+                poses.scale(0.82F, 0.82F, 0.82F);
                 // Mirror Minecraft's own name-tag transform exactly.
                 poses.translate(state.nameTagAttachment.x, state.nameTagAttachment.y + 0.5D, state.nameTagAttachment.z);
                 poses.mulPose(camera.orientation);
