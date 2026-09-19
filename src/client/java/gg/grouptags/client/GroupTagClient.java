@@ -1,6 +1,7 @@
 package gg.grouptags.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 public final class GroupTagClient implements ClientModInitializer {
     private static final TagService TAGS = new TagService();
+    private static final LogoTextureService LOGOS = new LogoTextureService();
 
     @Override
     public void onInitializeClient() {
@@ -16,5 +18,9 @@ public final class GroupTagClient implements ClientModInitializer {
 
     public static Optional<GroupTag> getTag(UUID playerUuid) {
         return TAGS.get(playerUuid);
+    }
+
+    public static Optional<ResourceLocation> getLogo(GroupTag tag) {
+        return LOGOS.get(tag);
     }
 }
