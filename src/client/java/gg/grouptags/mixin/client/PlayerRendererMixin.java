@@ -92,7 +92,7 @@ abstract class PlayerRendererMixin {
                 poses.mulPose(camera.orientation);
                 poses.scale(0.0205F, -0.0205F, 0.0205F);
                 poses.translate(iconX, 0.0F, 0.01F);
-                collector.submitCustomGeometry(poses, net.minecraft.client.renderer.RenderType.text(texture),
+                collector.submitCustomGeometry(poses, net.minecraft.client.renderer.rendertype.RenderType.text(texture),
                     (pose, vertices) -> {
                         vertices.addVertex(pose, -halfSize, -halfSize, 0.0F).setColor(-1).setUv(0.0F, 0.0F);
                         vertices.addVertex(pose, -halfSize, halfSize, 0.0F).setColor(-1).setUv(0.0F, 1.0F);
