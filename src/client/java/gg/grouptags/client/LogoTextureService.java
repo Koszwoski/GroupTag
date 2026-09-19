@@ -3,7 +3,7 @@ package gg.grouptags.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -22,12 +22,12 @@ final class LogoTextureService {
     private static final String ASSET_ORIGIN = "https://assets.grouptags.gg";
     private static final Pattern SAFE_LOGO_PATH = Pattern.compile("^/logos/[a-f0-9-]{36}\\.(?:png|webp)$");
     private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
-    private final Map<String, ResourceLocation> textures = new ConcurrentHashMap<>();
+    private final Map<String, Identifier> textures = new ConcurrentHashMap<>();
     private final Set<String> requested = ConcurrentHashMap.newKeySet();
 
-    Optional<ResourceLocation> get(GroupTag tag) {
+    Optional<Identifier> get(GroupTag tag) {
         if (!tag.hasLogo() || !SAFE_LOGO_PATH.matcher(tag.logoPath()).matches()) return Optional.empty();
-        ResourceLocation texture = textures.get(tag.logoPath());
+        Identifier texture = textures.get(tag.logoPath());
         if (texture != null) return Optional.of(texture);
         if (requested.add(tag.logoPath())) download(tag.logoPath());
         return Optional.empty();
@@ -50,7 +50,7 @@ final class LogoTextureService {
     private void register(String logoPath, byte[] bytes) {
         try {
             NativeImage image = NativeImage.read(new ByteArrayInputStream(bytes));
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath("grouptag",
+            Identifier id = Identifier.fromNamespaceAndPath("grouptag",
                 "logos/" + Integer.toUnsignedString(logoPath.hashCode(), 16));
             Minecraft.getInstance().getTextureManager().register(
                 id, new DynamicTexture(() -> "grouptag/" + id.getPath(), image));
