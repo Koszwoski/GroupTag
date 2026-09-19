@@ -126,10 +126,14 @@ final class TagService {
             UUID uuid = UUID.fromString(tag.get("uuid").getAsString());
             String name = tag.get("displayName").getAsString();
             String color = tag.get("color").getAsString();
-            result.put(uuid, new GroupTag(name, parseColor(color)));
+            result.put(uuid, new GroupTag(name, parseColor(color), getOptionalString(tag, "logoPath"), getOptionalString(tag, "logoPosition")));
         }
 
         return result;
+    }
+
+    private String getOptionalString(JsonObject object, String name) {
+        return object.has(name) && !object.get(name).isJsonNull() ? object.get(name).getAsString() : "";
     }
 
     private int parseColor(String color) {
