@@ -88,7 +88,7 @@ abstract class PlayerRendererMixin {
             float halfSize = 4.0F;
             poses.pushPose();
             try {
-                poses.translate(state.nameTagAttachment.x, state.nameTagAttachment.y + 0.95D, state.nameTagAttachment.z);
+                poses.translate(state.nameTagAttachment.x, state.nameTagAttachment.y, state.nameTagAttachment.z);
                 poses.mulPose(camera.orientation);
                 poses.scale(0.0205F, -0.0205F, 0.0205F);
                 poses.translate(iconX, 0.0F, 0.01F);
